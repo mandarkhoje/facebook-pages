@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="mandar khoje">
+</head>
+
+<body>
+<div class="container">
+    <div id="app-content"></div>
+    <div id="navigation"></div>
+    <div id="page-cover" class="row marketing">
+        <!-- template for cover space -->
+    </div>
+
+    <div class="row marketing">
+        <div class="col-lg-3">
+            <div class="col-lg-12">
+                <div id="sidebar"></div>
+            </div>
+        </div>
+        <div class="col-lg-9">
+            <div class="row" id="publish-post">
+                <!-- template for publishing post-->
+            </div>
+            <div id="post-content" class="row">
+                <!-- postviews and insights -->
+            </div>
+        </div>
+    </div>
+</div> <!-- /container -->
+
+<script src="js/fb.js" type="text/javascript"></script>
+<script src="lib/jquery-2.1.4.min.js" type="text/javascript"></script>
+<script src="lib/underscore-min.js" type="text/javascript"></script>
+<script src="lib/bootstrap.min.js" type="text/javascript"></script>
+<script src="lib/backbone-min.js" type="text/javascript"></script>
+<script src="lib/jquery-ui.js" type="text/javascript"></script>
+<link rel="stylesheet" type="text/css" href="css/bootstrap.css"/>
+<link rel="stylesheet" type="text/css" href="css/bootstrap-theme.min.css"/>
+<link rel="stylesheet" type="text/css" href="css/index.css"/>
+<link rel="stylesheet" type="text/css" href="css/jquery-ui.css"/>
+<link rel="stylesheet" type="text/css" href="css/jquery-ui.theme.css"/>
+
+<!-- templates-->
+<script type="text/template" id="navbar-view">
+
+    <nav class="navbar navbar-custom navbar-static-top">
+        <div class="collapse navbar-collapse">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">Facebook Page Manager</a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li class="active"><a class="nav-link" href="#">Home</a></li>
+                <li><a class="nav-link" href="#" id="fb-logout">Logout</a></li>
+                <li><a class="nav-link" href="#" id="fb-revoke">Revoke</a></li>
+            </ul>
+        </div><!-- /.navbar-collapse -->
+    </nav>
+</script>
+<script type="text/template" id="sidebar-view">
+    <div class="panel panel-custom">
+        <div class="panel-heading pages-heading">Pages</div>
+        <ul class="list-group">
+            <% _.each(pages, function(page) { %>
+                <li id="<%=page.id %>" class="list-group-item page-tab">
+                    <%= page.name %>
+                </li>
+            <% }); %>
+        </ul>
+    </div>
+</script>
+<script type="text/template" id="post-view">
+    <ul>
+        <% _.each(posts, function(post) { %>
+        <li id=<%=post.message%>
+            <span><%= post.message%></span>
+            <span>post_impressions=<%= post.post_impressions%></span>
+            <span>post_impressions_unique=<%= post.post_impressions_unique%></span>
+        </li>
+        <% }); %>
+    </ul>
+</script>
+<script type="text/template" id="single-post-view">
+    <div class="row-view">
+        <div class="col-lg-7">
+            <div class="panel panel-default box-shadow <%=post.class_name%>">
+                <div class="panel-body" id="<%=post.id%>">
+                    <div class="col-lg-4" id="post-img-col">
+                        <img src="<%=post.picture%>" class="img-responsive img-thumbnail" alt="">
+                    </div>
+                    <div class="col-lg-8">
+                        <span><%= post.message%></span>
+                        <!--<span><%=post.created_time%></span>-->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="panel panel-default box-shadow" >
+                <div class="panel-body">
+                    <div class="row impression-title">
+                        <div class="col-lg-8">Total Impressions</div>
+                        <div class="col-lg-4 impression-score"><%= post.post_impressions%></div>
+                    </div>
+                    <div class="row impression-title">
+                        <div class="col-lg-8">Total Unique Impression</div>
+                        <div class="col-lg-4 impression-score"><%= post.post_impressions_unique%></div>
+                    </div>
+                    <!--<div class="row impression-title">
+                        <div class="col-lg-8">Total View Count</div>
+                        <div class="col-lg-4 impression-score"><%= post.total_viewCount%></div>
+                    </div>-->
+
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/template" id="welcome-view">
+    <div class="jumbotron img-thumbnail welcome-jumbotron">
+    <p class="post">FACEBOOK PAGE MANAGER</p>
+            <div class="app-details">
+                <p><a class="btn btn-primary btn-lg fb-login" href="#" role="button">Login with Facebook</a></p>
+            </div>
+    </div>
+</script>
+
+<script type="text/template" id="publish-post-view">
+
+     <div class="form-group update-status">
+         <label for="comment">Post to page</label>
+         <textarea class="form-control" rows="5" id="comment" placeholder="What's on your mind?"></textarea>
+
+         <div id="post-published-message" class="alert alert-success" role="alert" style="display:none">
+             <b>Well done! </b>Your post has been published!
+         </div>
+         <div id="post-error-message" class="alert alert-danger" role="alert" style="display:none">
+             <b>Oh snap! Please enter some text</b>
+         </div>
+         <div class="publish-actions">
+            <!-- <div class="" style="display: inline-block">
+                 <img src="img/upload-photo.png" onclick="getFilePathFromDialog();">
+                 <span id="filePath"></span>
+                 <input type="file" id="fileBrowser" name="fileBrowser" style="visibility:hidden; display:none;" />
+             </div>-->
+             <div class="" style="display: inline-block">
+                 <button type="submit" class="pubish-post" id="add-post">Post</button>
+                 <span>Unpublished</span>
+                 <input type="checkbox" id="is_published_checkbox">
+             </div>
+             <input type="text" id="datepicker">
+
+         </div>
+     </div>
+</script>
+
+<script type="text/template" id="cover-view">
+    <div class="col-lg-3">
+        <div class="row">
+            <img src="" id="user-profile" class="user-profile-image img-thumbnail" alt=""/>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="row">
+            <div class="jumbotron img-thumbnail cover-photo">
+                <h4 class="page-title"></h4>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="col-lg-2">
+        <div class="panel panel-default box-shadow page-impression" >
+            <div class="panel-body">
+                <div class="row impression-title">
+                    <div class="col-lg-8">Likes!</div>
+                    <div class="col-lg-4 page-impression-score"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<input type="hidden" id="page_id_select" name="pageValue" value="">
+<script src="js/appService.js"></script>
+<script src="js/app.js"></script>
+<script  src="js/driver.js"></script>
+<script src="js/models.js"></script>
+<script src="js/views.js"></script>
+</body>
+</html>
